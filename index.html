@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oyun Salonu</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="unoshout" id="unoshout">UNO!</div>
+<div id="toast"></div>
+
+<!-- HOME -->
+<!-- GİRİŞ / KAYIT EKRANI -->
+<div id="screen-auth" class="screen active" style="justify-content:center;align-items:center;min-height:100vh;">
+  <div class="auth-wrap">
+    <div class="auth-logo">OYUN SALONU</div>
+    <div class="auth-sub">Giriş yap veya kayıt ol</div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">Giriş Yap</div>
+        <div class="auth-tab" id="auth-tab-register" onclick="switchAuthTab('register')">Kayıt Ol</div>
+      </div>
+      <!-- GİRİŞ -->
+      <div id="auth-login-form">
+        <div class="auth-field">
+          <label>E-posta</label>
+          <input type="email" id="auth-login-email" placeholder="ornek@email.com" autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label>Şifre</label>
+          <input type="password" id="auth-login-pass" placeholder="Şifreniz..." autocomplete="current-password" onkeydown="if(event.key==='Enter')authLogin()">
+        </div>
+        <button class="auth-btn" onclick="authLogin()" id="auth-login-btn"><span>Giriş Yap →</span></button>
+        <div class="auth-err" id="auth-login-err"></div>
+      </div>
+      <!-- KAYIT -->
+      <div id="auth-register-form" style="display:none">
+        <div class="auth-field">
+          <label>Kullanıcı Adı</label>
+          <input type="text" id="auth-reg-name" placeholder="Görünen isminiz..." maxlength="18" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('auth-reg-email').focus()">
+        </div>
+        <div class="auth-field">
+          <label>E-posta</label>
+          <input type="email" id="auth-reg-email" placeholder="ornek@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('auth-reg-pass').focus()">
+        </div>
+        <div class="auth-field">
+          <label>Şifre</label>
+          <input type="password" id="auth-reg-pass" placeholder="En az 6 karakter..." autocomplete="new-password" onkeydown="if(event.key==='Enter')authRegister()">
+        </div>
+        <button class="auth-btn" onclick="authRegister()" id="auth-reg-btn"><span>Kayıt Ol →</span></button>
+        <div class="auth-err" id="auth-reg-err"></div>
+      </div>
+      <div class="auth-divider">veya</div>
+      <button class="auth-btn" onclick="authGuest()" style="border-color:var(--muted);color:var(--muted)"><span>👤 Misafir Olarak Devam Et</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="screen-home" class="screen">
+  <div class="site-title">OYUN SALONU</div>
+  <div class="site-sub">Çevrimiçi · P2P</div>
+  <div class="gold-line"></div>
+  <div class="auth-user-bar" id="auth-user-bar">
+    <div class="auth-avatar" id="auth-avatar-home">?</div>
+    <div class="auth-user-info"><div class="auth-user-name" id="auth-username-home">—</div><div class="auth-user-email" id="auth-email-home">—</div></div>
+    <button class="auth-logout-btn" id="auth-bar-btn" onclick="authBarAction()">Çıkış</button>
+  </div>
+  <div class="themebar">
+    <div class="themebox">
+      <label for="main-theme-select">🎨 Tema</label>
+      <select id="main-theme-select" onchange="applyTheme(this.value)">
+        <option value="classic">🟢 Klasik Kahvehane</option>
+        <option value="night">🌙 Gece / Mor</option>
+        <option value="emerald">💚 Zümrüt</option>
+        <option value="royal">👑 Royal Altın</option>
+        <option value="casino">🎰 Retro Casino</option>
+        <option value="light">☀️ Açık Tema</option>
+      </select>
+      <div class="theme-preview" aria-hidden="true">
+        <span class="theme-dot theme-dot-gold" style="background:var(--gold)"></span>
+        <span class="theme-dot theme-dot-green" style="background:var(--green)"></span>
+        <span class="theme-dot theme-dot-blue" style="background:var(--blue)"></span>
+      </div>
+    </div>
+  </div>
+  <div class="game-grid">
+    <div class="gc" onclick="selGame('dama',this)">
+      <span class="gi">🔴</span><div class="gt">Dama</div><div class="gd">8×8 klasik</div>
+      <div class="gbadge">2 KİŞİ</div>
+    </div>
+    <div class="gc" onclick="selGame('chess',this)">
+      <span class="gi">♟</span><div class="gt">Satranç</div><div class="gd">Tam kurallar</div>
+      <div class="gbadge">2 KİŞİ</div>
+    </div>
+    <div class="gc" onclick="selGame('tavla',this)">
+      <span class="gi">🎲</span><div class="gt">Tavla</div><div class="gd">Türk tavlası</div>
+      <div class="gbadge">2 KİŞİ</div>
+    </div>
+    <div class="gc" onclick="selGame('uno',this)">
+      <span class="gi">🃏</span><div class="gt">Uno</div><div class="gd">Renkli kart oyunu</div>
+      <div class="gbadge">3–6 KİŞİ</div>
+    </div>
+    <div class="gc" onclick="selGame('okey',this)">
+      <span class="gi">🀄</span><div class="gt">Okey</div><div class="gd">Türk okey masası</div>
+      <div class="gbadge">4 KİŞİ</div>
+    </div>
+    <div class="gc" onclick="selGame('amiral',this)">
+      <span class="gi">⚓</span><div class="gt">Amiral Battı</div><div class="gd">Gemi avı</div>
+      <div class="gbadge">2 KİŞİ</div>
+    </div>
+    <div class="gc" onclick="selGame('sos',this)">
+      <span class="gi">📝</span><div class="gt">SOS</div><div class="gd">Harf oyunu</div>
+      <div class="gbadge">2 KİŞİ</div>
+    </div>
+    <div class="gc" onclick="selGame('sudoku',this)">
+      <span class="gi">🔢</span><div class="gt">Sudoku</div><div class="gd">Mantık bulmacası</div>
+      <div class="gbadge">TEK KİŞİ</div>
+    </div>
+    <div class="gc" onclick="selGame('asmaca',this)">
+      <span class="gi">🎭</span><div class="gt">Adam Asmaca</div><div class="gd">Kelime tahmin</div>
+      <div class="gbadge">TEK KİŞİ</div>
+    </div>
+  </div>
+  <!-- ODA LİSTESİ -->
+  <div class="rooms-section">
+    <div class="rooms-header">
+      <div>
+        <div class="rooms-title">Açık Odalar</div>
+        <div class="fb-status"><div class="fb-dot"></div><span id="fb-status-txt">Bağlanıyor...</span></div>
+      </div>
+      <button class="rooms-refresh" onclick="loadRooms()">↻ Yenile</button>
+    </div>
+    <div class="rooms-list" id="rooms-list">
+      <div class="rooms-loading"><div class="wd"></div><div class="wd"></div><div class="wd"></div></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:0">
+    <div class="ptitle" id="sgl">— Oyun Seç —</div>
+    <div class="field" id="uname-field"><label>Kullanıcı Adı</label><input type="text" id="uname" placeholder="İsminizi girin..." maxlength="18" readonly style="opacity:0.7;cursor:default" title="Kullanıcı adınızı değiştirmek için profilinize gidin"></div>
+    <div id="multi-opts" style="display:none">
+      <div class="field"><label>Oyuncu Sayısı</label>
+        <select id="player-count">
+          <option value="3">3 Kişi</option>
+          <option value="4" selected>4 Kişi</option>
+          <option value="5">5 Kişi</option>
+          <option value="6">6 Kişi</option>
+        </select>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('cr')">Oda Aç</div>
+      <div class="tab" onclick="switchTab('jo')">Katıl</div>
+    </div>
+    <div id="tab-cr">
+      <div class="field" style="margin-bottom:10px">
+        <label>Oda Türü</label>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <div class="room-type-btn active" id="rtype-public" onclick="setRoomType('public')">
+            <span style="font-size:1rem">🌐</span>
+            <div class="rt-label">Açık</div>
+            <div class="rt-desc">Listede görünsün</div>
+          </div>
+          <div class="room-type-btn" id="rtype-private" onclick="setRoomType('private')">
+            <span style="font-size:1rem">🔒</span>
+            <div class="rt-label">Gizli</div>
+            <div class="rt-desc">Şifreli, listede yok</div>
+          </div>
+        </div>
+      </div>
+      <div class="field" id="room-pass-field" style="display:none">
+        <label>Oda Şifresi</label>
+        <input type="text" id="room-password" placeholder="Şifre belirle..." maxlength="20" autocomplete="off">
+      </div>
+      <div class="rcbox" id="rcbox" style="display:none">
+        <div class="rclbl">Oda Kodu — Arkadaşlarınla Paylaş</div>
+        <div class="rcval" id="rcval" onclick="copyCode()">———</div>
+        <div class="rchint">Tıklayarak kopyala</div>
+      </div>
+      <button class="btn" onclick="createRoom()" id="btn-cr"><span>Oda Oluştur</span></button>
+      <div class="strow" id="st-cr" style="display:none"><div class="dot cn" id="dot-cr"></div><span id="sttxt-cr">...</span></div>
+    </div>
+    <div id="tab-jo" style="display:none">
+      <div class="field"><label>Oda Kodu</label>
+        <input type="text" id="jcode" placeholder="KODU GİR..." maxlength="6" style="text-transform:uppercase;letter-spacing:0.4em;text-align:center;font-size:1.2rem" oninput="checkJoinPassword()">
+      </div>
+      <div class="field" id="join-pass-field" style="display:none">
+        <label>Oda Şifresi</label>
+        <input type="text" id="join-password" placeholder="Şifreyi girin..." maxlength="20" autocomplete="off">
+      </div>
+      <button class="btn sec" onclick="joinRoom()" id="btn-jo"><span>Odaya Katıl</span></button>
+      <div class="strow" id="st-jo" style="display:none"><div class="dot cn" id="dot-jo"></div><span id="sttxt-jo">...</span></div>
+    </div>
+  </div>
+</div>
+  <div class="panel" id="profile-panel-extra" style="margin-top:0">
+    <div class="ptitle">Profil · Tema · Geçmiş</div>
+    <div id="profile-mini-host"></div>
+    <div class="theme-row">
+      <label style="font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-family:'Cinzel',serif">Tema</label>
+      <select id="profile-theme-select" onchange="applyTheme(this.value)">
+        <option value="classic">🟢 Klasik</option>
+        <option value="night">🌙 Gece</option>
+        <option value="emerald">💚 Zümrüt</option>
+        <option value="royal">👑 Royal</option>
+        <option value="casino">🎰 Casino</option>
+        <option value="light">☀️ Açık</option>
+      </select>
+    </div>
+    <div class="history-card" style="margin:12px 0 0;max-width:none;padding:10px 12px">
+      <div class="smalllbl" style="margin-bottom:8px">Son Maçlar</div>
+      <div class="history-list" id="history-list"></div>
+    </div>
+  </div>
+
+
+<!-- LOBBY (multi-player waiting room) -->
+<div id="screen-lobby" class="screen">
+  <div class="site-title" style="font-size:clamp(1.6rem,5vw,2.5rem);padding-top:50px">Oyun Lobisi</div>
+  <div class="panel">
+    <div class="ptitle" id="lobby-game-title">— Oyun —</div>
+    <div class="rcbox">
+      <div class="rclbl">Oda Kodu — Paylaş</div>
+      <div class="rcval" id="lobby-code" onclick="copyCode()">———</div>
+      <div class="rchint">Tıklayarak kopyala</div>
+    </div>
+    <div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:0.65rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;font-family:'Cinzel',serif">OYUNCULAR</span>
+        <span style="font-size:0.65rem;color:var(--gold);font-family:'Cinzel',serif" id="lobby-count">0 / ?</span>
+      </div>
+      <div class="lobby-progress"><div class="lobby-prog-bar" id="lobby-prog" style="width:0%"></div></div>
+    </div>
+    <div class="lobby-players" id="lobby-slots"></div>
+    <div style="margin-top:12px">
+      <button class="btn grn" id="lobby-start-btn" onclick="hostStartGame()" style="display:none"><span>▶ Oyunu Başlat</span></button>
+      <div class="wdots" id="lobby-wait-dots"><div class="wd"></div><div class="wd"></div><div class="wd"></div></div>
+      <div style="text-align:center;font-size:0.7rem;color:var(--muted);letter-spacing:0.1em" id="lobby-status-txt">Oyuncular bekleniyor...</div>
+    </div>
+    <button class="btn dan" onclick="leaveHome()" style="margin-top:10px"><span>İptal</span></button>
+  </div>
+</div>
+
+<!-- WAIT (2-player) -->
+<div id="screen-wait" class="screen">
+  <div class="site-title" style="font-size:2rem;padding-top:60px">Rakip Bekleniyor</div>
+  <div class="panel">
+    <div class="wdots"><div class="wd"></div><div class="wd"></div><div class="wd"></div></div>
+    <div class="rcbox"><div class="rclbl">Kodu paylaş</div><div class="rcval" id="wait-code" onclick="copyCode()">———</div><div class="rchint">Tıklayarak kopyala</div></div>
+    <button class="btn dan" onclick="leaveHome()" style="margin-top:10px"><span>İptal</span></button>
+  </div>
+</div>
+
+<!-- DAMA -->
+<div id="screen-dama" class="screen">
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">🔴 DAMA</div><div style="width:55px"></div></div>
+  <div class="scoreboard" id="dama-scores"></div>
+  <div class="turnbar" id="dama-turn">...</div>
+  <div style="display:flex;justify-content:center;padding:0 12px;width:100%;max-width:440px"><div id="dama-board"></div></div>
+  <div class="chatwrap"><div style="font-family:'Cinzel',serif;font-size:0.7rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:6px">SOHBET</div><div class="chatmsgs" id="dama-chat"></div><div class="chatrow"><input type="text" id="dama-ci" placeholder="Mesaj..." maxlength="80" onkeydown="if(event.key==='Enter')sendChat('dama')"><button class="csend" onclick="sendChat('dama')">Gönder</button></div></div>
+  <div style="padding:0 12px 26px;width:100%;max-width:600px"><button class="btn dan" onclick="leaveGame()"><span>Çık</span></button></div>
+</div>
+
+<!-- SATRANÇ -->
+<div id="screen-chess" class="screen">
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">♟ SATRANÇ</div><div style="width:55px"></div></div>
+  <div class="scoreboard" id="chess-scores"></div>
+  <div class="turnbar" id="chess-turn">...</div>
+  <div style="display:flex;justify-content:center;padding:0 12px;width:100%;max-width:440px"><div id="chess-board"></div></div>
+  <div id="pmodal" class="mbg" style="display:none"><div class="mod"><h3>Terfi — Hangi Taş?</h3><div class="promops" id="pchoices"></div></div></div>
+  <div class="chatwrap"><div style="font-family:'Cinzel',serif;font-size:0.7rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:6px">SOHBET</div><div class="chatmsgs" id="chess-chat"></div><div class="chatrow"><input type="text" id="chess-ci" placeholder="Mesaj..." maxlength="80" onkeydown="if(event.key==='Enter')sendChat('chess')"><button class="csend" onclick="sendChat('chess')">Gönder</button></div></div>
+  <div style="padding:0 12px 26px;width:100%;max-width:600px"><button class="btn dan" onclick="leaveGame()"><span>Çık</span></button></div>
+</div>
+
+<!-- TAVLA -->
+<div id="screen-tavla" class="screen">
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">🎲 TAVLA</div><div style="width:55px"></div></div>
+  <div id="tavla-wrap">
+    <div class="scoreboard" id="tavla-scores"></div>
+    <div class="turnbar" id="tavla-turn">...</div>
+    <div class="tavla-stats" id="tavla-stats"></div>
+    <div class="dicewrap" id="tavla-dice"></div>
+    <div style="display:flex;justify-content:center;width:100%"><div id="tavla-board"></div></div>
+    <div class="tavla-actions">
+      <button class="tavbtn primary" id="btn-roll" onclick="tavlaRoll()" disabled>🎲 Zar At</button>
+      <button class="tavbtn" id="btn-pass" onclick="tavlaPass()" disabled>⏭ Pas Geç</button>
+    </div>
+    <div class="chatwrap"><div style="font-family:'Cinzel',serif;font-size:0.7rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:6px">SOHBET</div><div class="chatmsgs" id="tavla-chat"></div><div class="chatrow"><input type="text" id="tavla-ci" placeholder="Mesaj..." maxlength="80" onkeydown="if(event.key==='Enter')sendChat('tavla')"><button class="csend" onclick="sendChat('tavla')">Gönder</button></div></div>
+    <div style="padding:4px 0 16px"><button class="btn dan" onclick="leaveGame()"><span>Çık</span></button></div>
+  </div>
+</div>
+
+<!-- UNO -->
+<div id="screen-uno" class="screen">
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">🃏 UNO</div><div class="uno-dir" id="uno-dir-lbl">↻</div></div>
+  <div class="turnbar" id="uno-turn">...</div>
+  <div id="uno-wrap">
+    <div class="uno-table">
+      <div class="uno-statusbar">
+        <div class="uno-chip" id="uno-chip-turn">Sıra bekleniyor</div>
+        <div class="uno-chip warn" id="uno-chip-rule">Kural: normal oyun</div>
+        <div class="uno-chip" id="uno-chip-count">Elindeki kart: 0</div>
+      </div>
+      <div class="uno-opponents" id="uno-opponents"></div>
+      <div class="uno-center">
+        <div>
+          <div class="udeck" onclick="unoDraw()" id="uno-deck-btn" title="Kart çek">
+            <span>ÇEK</span>
+            <span id="uno-deck-cnt">—</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div class="udiscard" id="uno-discard" style="background:#333;min-width:52px"></div>
+          <div class="ucolor-badge" id="uno-colbadge" style="display:none"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px" id="uno-info-col">
+          <div style="font-family:'Cinzel',serif;font-size:0.62rem;color:var(--muted);letter-spacing:0.1em">YÖN</div>
+          <div style="font-size:1.7rem" id="uno-turn-arrow">↻</div>
+        </div>
+      </div>
+      <div id="uno-colpick" style="display:none;background:var(--s);border:1px solid var(--bd);border-radius:12px;padding:10px;margin-top:8px">
+        <div class="smalllbl" style="margin-bottom:8px">Renk Seç:</div>
+        <div class="colpick">
+          <div class="colbtn" style="background:#e74c3c" onclick="unoPickColor('red')">K</div>
+          <div class="colbtn" style="background:#3498db" onclick="unoPickColor('blue')">M</div>
+          <div class="colbtn" style="background:#2ecc71" onclick="unoPickColor('green')">Y</div>
+          <div class="colbtn" style="background:#f1c40f" onclick="unoPickColor('yellow')">S</div>
+        </div>
+      </div>
+      <div class="uno-actions">
+        <div class="uno-actions-left">
+          <button class="smb" id="uno-passbtn" onclick="unoPass()" disabled>Pas Geç</button>
+          <button class="smb" id="uno-sort-color" onclick="unoSortHand('color')">Renge Göre</button>
+          <button class="smb" id="uno-sort-value" onclick="unoSortHand('value')">Sayıya Göre</button>
+        </div>
+        <div class="uno-actions-right">
+          <button class="smb" id="uno-show-playable" onclick="unoTogglePlayableOnly()">Oynanabilirleri Göster</button>
+          <button class="smb" onclick="unoSuggestMove()">Öneri</button>
+          <button class="smb dan" id="uno-unobtn" onclick="shoutUno()" style="display:none">📢 UNO!</button>
+        </div>
+      </div>
+      <div class="uhand-wrap">
+        <div class="uhand-toolbar">
+          <div class="smalllbl" style="margin:0">SENİN ELİN</div>
+          <div class="uhand-meta" id="uno-help-txt">Oynanabilir kartlar parlıyor.</div>
+        </div>
+        <div class="uhand" id="uno-myh"></div>
+      </div>
+    </div>
+  </div>
+  <div class="chatwrap"><div style="font-family:'Cinzel',serif;font-size:0.7rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:6px">SOHBET</div><div class="chatmsgs" id="uno-chat"></div><div class="chatrow"><input type="text" id="uno-ci" placeholder="Mesaj..." maxlength="80" onkeydown="if(event.key==='Enter')sendChat('uno')"><button class="csend" onclick="sendChat('uno')">Gönder</button></div></div>
+  <div style="padding:0 12px 26px;width:100%;max-width:700px"><button class="btn dan" onclick="leaveGame()"><span>Çık</span></button></div>
+</div>
+
+<!-- OKEY -->
+<div id="screen-okey" class="screen">
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">🀄 OKEY</div><div style="width:55px"></div></div>
+  <div class="turnbar" id="okey-turn">...</div>
+  <div id="okey-wrap">
+    <div class="okey-table">
+      <div class="okey-opponents" id="okey-opponents"></div>
+      <div class="okey-center">
+        <div style="text-align:center">
+          <div class="opile" onclick="okeyDraw('pile')" title="Desteden çek">
+            <span style="color:rgba(255,255,255,0.5);font-family:'Cinzel',serif;font-size:0.6rem">ÇEK</span>
+          </div>
+          <div style="font-size:0.56rem;color:var(--muted);margin-top:3px;font-family:'Cinzel',serif" id="okey-pilecnt">—</div>
+        </div>
+        <div style="text-align:center">
+          <div class="opindt" id="okey-ind"><span style="font-size:0.58rem;color:var(--muted)">...</span></div>
+          <div style="font-size:0.56rem;color:var(--muted);margin-top:3px;font-family:'Cinzel',serif">OKEY TAŞI</div>
+        </div>
+        <div style="text-align:center">
+          <div class="odiscpile" id="okey-disctp" onclick="okeyDraw('discard')">ÇÖPLÜK</div>
+          <div style="font-size:0.56rem;color:var(--muted);margin-top:3px;font-family:'Cinzel',serif" id="okey-disccnt">0</div>
+        </div>
+      </div>
+      <div class="okey-actions">
+        <button class="smb pri" id="okey-discbtn" onclick="okeyDiscard()" disabled>Taş At</button>
+        <button class="smb" id="okey-declbtn" onclick="okeyDeclare()" disabled>🏆 Bitir!</button>
+        <button class="smb" onclick="okeySort()">Sırala</button>
+        <button class="smb" onclick="okeySuggestMove()">Öneri</button>
+        <div class="okey-mode-inline">
+          <select id="okey-open-mode" class="okey-mode-sel">
+            <option value="sirali">Sıralı El</option>
+            <option value="seri">Seri El</option>
+          </select>
+          <button class="smb" id="okey-openbtn" onclick="okeyOpenHand()" disabled>👐 El Aç</button>
+        </div>
+      </div>
+      <div class="okey-open-state" id="okey-open-state"></div>
+      <div class="smalllbl">SENİN ELİN</div>
+      <div class="orack" id="okey-myr"></div>
+    </div>
+  </div>
+  <div class="chatwrap"><div style="font-family:'Cinzel',serif;font-size:0.7rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:6px">SOHBET</div><div class="chatmsgs" id="okey-chat"></div><div class="chatrow"><input type="text" id="okey-ci" placeholder="Mesaj..." maxlength="80" onkeydown="if(event.key==='Enter')sendChat('okey')"><button class="csend" onclick="sendChat('okey')">Gönder</button></div></div>
+  <div style="padding:0 12px 26px;width:100%;max-width:720px"><button class="btn dan" onclick="leaveGame()"><span>Çık</span></button></div>
+</div>
+
+<!-- GAMEOVER -->
+
+<!-- AMİRAL BATTI -->
+<div id="screen-amiral" class="screen">
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">⚓ AMİRAL BATTI</div><div style="width:55px"></div></div>
+  <div class="scoreboard" id="amiral-scores"></div>
+  <div class="turnbar" id="amiral-turn">...</div>
+  <div id="amiral-wrap">
+    <div id="amiral-phase-info" style="text-align:center;font-family:'Cinzel',serif;font-size:0.75rem;color:var(--gold);letter-spacing:0.1em;padding:4px 0;"></div>
+    <div id="amiral-boards" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;padding:4px 10px;">
+      <div>
+        <div style="font-family:'Cinzel',serif;font-size:0.65rem;color:var(--muted);text-align:center;letter-spacing:0.15em;margin-bottom:4px">KENDİN</div>
+        <div id="amiral-my-board" class="amiral-board"></div>
+      </div>
+      <div>
+        <div style="font-family:'Cinzel',serif;font-size:0.65rem;color:var(--muted);text-align:center;letter-spacing:0.15em;margin-bottom:4px">RAKİP</div>
+        <div id="amiral-opp-board" class="amiral-board clickable"></div>
+      </div>
+    </div>
+    <div id="amiral-ship-select" style="display:none;padding:6px 10px;">
+      <div style="font-family:'Cinzel',serif;font-size:0.7rem;color:var(--gold);text-align:center;margin-bottom:6px;letter-spacing:0.1em;">GEMİ YERLEŞTIR</div>
+      <div id="amiral-ships-list" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:8px;"></div>
+      <div style="display:flex;gap:6px;justify-content:center;">
+        <button class="tavbtn" onclick="amiralRotate()" id="amiral-rotate-btn">↻ Döndür</button>
+        <button class="tavbtn primary" onclick="amiralConfirmPlace()" id="amiral-place-btn" disabled>✓ Yerleştir</button>
+        <button class="tavbtn" onclick="amiralReady()" id="amiral-ready-btn" style="display:none">▶ Hazır!</button>
+      </div>
+    </div>
+    <div id="amiral-status" style="text-align:center;font-family:'Cinzel',serif;font-size:0.72rem;color:var(--muted);padding:4px 0;min-height:22px;"></div>
+  </div>
+  <div class="chatwrap"><div style="font-family:'Cinzel',serif;font-size:0.7rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:6px">SOHBET</div><div class="chatmsgs" id="amiral-chat"></div><div class="chatrow"><input type="text" id="amiral-ci" placeholder="Mesaj..." maxlength="80" onkeydown="if(event.key==='Enter')sendChat('amiral')"><button class="csend" onclick="sendChat('amiral')">Gönder</button></div></div>
+  <div style="padding:4px 12px 20px;width:100%;max-width:600px"><button class="btn dan" onclick="leaveGame()"><span>Çık</span></button></div>
+</div>
+
+<!-- SOS -->
+<div id="screen-sos" class="screen">
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">📝 SOS</div><div style="width:55px"></div></div>
+  <div class="scoreboard" id="sos-scores"></div>
+  <div class="turnbar" id="sos-turn">...</div>
+  <div id="sos-wrap">
+    <div id="sos-stats" style="display:flex;gap:16px;justify-content:center;font-family:'Cinzel',serif;font-size:0.7rem;padding:4px 0;"></div>
+    <div id="sos-board-wrap" style="display:flex;justify-content:center;padding:0 10px;">
+      <div id="sos-board" class="sos-board"></div>
+    </div>
+    <div id="sos-letter-pick" style="display:flex;gap:10px;justify-content:center;padding:6px 0;">
+      <button class="sos-lbtn" onclick="sosPickLetter('S')">S</button>
+      <button class="sos-lbtn" onclick="sosPickLetter('O')">O</button>
+    </div>
+    <div id="sos-status" style="text-align:center;font-family:'Cinzel',serif;font-size:0.7rem;color:var(--muted);padding:2px 0;min-height:20px;"></div>
+  </div>
+  <div class="chatwrap"><div style="font-family:'Cinzel',serif;font-size:0.7rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:6px">SOHBET</div><div class="chatmsgs" id="sos-chat"></div><div class="chatrow"><input type="text" id="sos-ci" placeholder="Mesaj..." maxlength="80" onkeydown="if(event.key==='Enter')sendChat('sos')"><button class="csend" onclick="sendChat('sos')">Gönder</button></div></div>
+  <div style="padding:4px 12px 20px;width:100%;max-width:600px"><button class="btn dan" onclick="leaveGame()"><span>Çık</span></button></div>
+</div>
+
+<!-- SUDOKU -->
+<div id="screen-sudoku" class="screen">
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">🔢 SUDOKU</div><div style="width:55px"></div></div>
+  <div id="sudoku-wrap">
+    <div style="display:flex;gap:10px;justify-content:center;align-items:center;padding:4px 10px;flex-wrap:wrap;">
+      <div style="font-family:'Cinzel',serif;font-size:0.65rem;color:var(--muted);letter-spacing:0.12em;">Zorluk:</div>
+      <select id="sudoku-diff" style="font-size:0.75rem;padding:4px 8px;" onchange="sudokuChangeDiff()">
+        <option value="easy">Kolay</option>
+        <option value="medium" selected>Orta</option>
+        <option value="hard">Zor</option>
+      </select>
+      <button class="tavbtn primary" onclick="sudokuNew()">↻ Yeni</button>
+      <div id="sudoku-timer" style="font-family:'Cinzel',serif;font-size:0.8rem;color:var(--gold);min-width:50px;text-align:center;">00:00</div>
+    </div>
+    <div style="display:flex;justify-content:center;padding:0 10px;">
+      <div id="sudoku-board" class="sudoku-board"></div>
+    </div>
+    <div id="sudoku-numpad" class="sudoku-numpad">
+      <button class="snum-btn" onclick="sudokuInput(1)">1</button>
+      <button class="snum-btn" onclick="sudokuInput(2)">2</button>
+      <button class="snum-btn" onclick="sudokuInput(3)">3</button>
+      <button class="snum-btn" onclick="sudokuInput(4)">4</button>
+      <button class="snum-btn" onclick="sudokuInput(5)">5</button>
+      <button class="snum-btn" onclick="sudokuInput(6)">6</button>
+      <button class="snum-btn" onclick="sudokuInput(7)">7</button>
+      <button class="snum-btn" onclick="sudokuInput(8)">8</button>
+      <button class="snum-btn" onclick="sudokuInput(9)">9</button>
+      <button class="snum-btn del" onclick="sudokuInput(0)" style="grid-column:span 3">⌫ Sil</button>
+    </div>
+    <div id="sudoku-status" style="text-align:center;font-family:'Cinzel',serif;font-size:0.72rem;color:var(--muted);padding:4px 0;min-height:22px;"></div>
+    <div style="display:flex;gap:8px;justify-content:center;padding:4px 0;">
+      <button class="tavbtn" onclick="sudokuHint()">💡 İpucu</button>
+      <button class="tavbtn" onclick="sudokuCheck()">✓ Kontrol</button>
+    </div>
+  </div>
+  <div style="padding:8px 12px 20px;width:100%;max-width:500px"><button class="btn dan" onclick="leaveGame()"><span>Çık</span></button></div>
+</div>
+
+<!-- ADAM ASMACA -->
+<div id="screen-asmaca" class="screen">
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">🎭 ADAM ASMACA</div><div style="width:55px"></div></div>
+  <div id="asmaca-wrap">
+    <div id="asmaca-solo-opts" style="display:flex;gap:8px;justify-content:center;align-items:center;padding:4px 10px;flex-wrap:wrap;">
+      <div style="font-family:'Cinzel',serif;font-size:0.7rem;color:var(--gold2);letter-spacing:0.1em;">Kategori seç, kelimeyi ipucuyla tahmin et</div>
+      <select id="asmaca-category" onchange="asmacaChangeCategory()" style="width:auto;min-width:180px;font-size:0.78rem;padding:7px 10px;">
+        <option value="karisik">🎲 Karışık</option>
+        <option value="meyveSebze">🍎 Meyve / Sebze</option>
+        <option value="hayvanlar">🐾 Hayvanlar</option>
+        <option value="meslekler">🧑‍💼 Meslekler</option>
+        <option value="sporOyun">⚽ Spor / Oyun</option>
+        <option value="teknoloji">💻 Teknoloji</option>
+        <option value="evEsyalari">🏠 Ev Eşyaları</option>
+        <option value="yemekIcecek">🍽️ Yemek / İçecek</option>
+        <option value="ulkelerSehirler">🌍 Ülke / Şehir</option>
+        <option value="dogaYerler">🌿 Doğa / Yerler</option>
+        <option value="ulasimNesne">🚗 Ulaşım / Nesne</option>
+      </select>
+      <button class="tavbtn" onclick="asmacaShowHint()" id="asmaca-hint-btn">💡 İpucu Al (-1 hak)</button>
+      <button class="tavbtn primary" onclick="asmacaNew()">↻ Yeni Kelime</button>
+    </div>
+    <div id="asmaca-pool-info" style="text-align:center;font-family:'Cinzel',serif;font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;padding:2px 0;"></div>
+    <div id="asmaca-figure" class="asmaca-figure"></div>
+    <div id="asmaca-word" class="asmaca-word"></div>
+    <div id="asmaca-hint" style="text-align:center;font-family:'Cinzel',serif;font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;padding:2px 0;"></div>
+    <div id="asmaca-letters" class="asmaca-letters"></div>
+    <div id="asmaca-status" style="text-align:center;font-family:'Cinzel',serif;font-size:0.8rem;color:var(--gold);padding:6px 0;min-height:28px;font-weight:700;letter-spacing:0.1em;"></div>
+  </div>
+  <div style="padding:8px 12px 20px;width:100%;max-width:500px"><button class="btn dan" onclick="leaveGame()"><span>Çık</span></button></div>
+</div>
+<div id="screen-gameover" class="screen">
+  <div style="height:60px"></div>
+  <div class="gopanel">
+    <div class="gores" id="go-res">—</div>
+    <div class="gosub" id="go-sub"></div>
+    <div class="go-rankings" id="go-rankings"></div>
+    <div class="brow">
+      <button class="btn" onclick="doRematch()"><span>Tekrar</span></button>
+      <button class="btn dan" onclick="leaveHome()"><span>Menü</span></button>
+    </div>
+  </div>
+</div>
+
+<script src="js/00-core.js"></script>
+<script src="js/01-utils.js"></script>
+<script src="js/02-router.js"></script>
+<script src="js/games/dama.js"></script>
+<script src="js/games/chess.js"></script>
+<script src="js/games/tavla.js"></script>
+<script src="js/games/uno.js"></script>
+<script src="js/games/okey.js"></script>
+<script src="js/03-helpers.js"></script>
+<script src="js/games/sudoku.js"></script>
+<script src="js/games/asmaca.js"></script>
+<script src="js/games/amiral.js"></script>
+<script src="js/games/sos.js"></script>
+<script src="js/04-firebase-auth.js"></script>
+<script src="js/05-theme-panel.js"></script>
+<script src="js/98-enhancements.js"></script>
+
+<!-- YÜZEN TEMA BUTONU - Her ekranda görünür -->
+<div id="float-theme-btn" style="position:fixed;bottom:20px;right:20px;z-index:9000;display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+  <div id="float-theme-panel" style="display:none;background:var(--s);border:1px solid var(--gold);border-radius:12px;padding:12px;box-shadow:0 8px 24px rgba(0,0,0,0.4);min-width:180px;">
+    <div style="font-family:'Cinzel',serif;font-size:0.65rem;color:var(--muted);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;">Tema Seç</div>
+    <div id="float-theme-list" style="display:flex;flex-direction:column;gap:4px;"></div>
+  </div>
+  <button onclick="toggleThemePanel()" style="width:42px;height:42px;border-radius:50%;background:var(--s);border:1px solid var(--gold);color:var(--gold);font-size:1.1rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:all 0.2s;display:flex;align-items:center;justify-content:center;" title="Tema değiştir">🎨</button>
+</div>
+
+
+<style>
+.otile.skin-okey,.opindt.skin-okey,.odiscpile.skin-okey{background:none!important;border-color:transparent!important;box-shadow:none!important;display:flex;align-items:center;justify-content:center;padding:0;overflow:visible;}
+.otile.skin-okey::before,.opindt.skin-okey::before,.odiscpile.skin-okey::before{display:none!important;}
+.okey-tile-face{width:100%;height:100%;background-repeat:no-repeat;background-position:center;background-size:contain;pointer-events:none;filter:drop-shadow(0 4px 8px rgba(0,0,0,.30));}
+.otile.skin-okey .okey-tile-face{transform:translateY(-2px);}
+.otile.osel.skin-okey .okey-tile-face{filter:drop-shadow(0 0 10px rgba(201,168,76,.35)) drop-shadow(0 6px 10px rgba(0,0,0,.32));}
+.otile.group-hint.skin-okey .okey-tile-face{filter:drop-shadow(0 0 10px rgba(39,174,96,.35)) drop-shadow(0 5px 8px rgba(0,0,0,.24));}
+.otile.best-discard.skin-okey .okey-tile-face{filter:drop-shadow(0 0 8px rgba(231,76,60,.42)) drop-shadow(0 5px 8px rgba(0,0,0,.24));}
+.otb.skin-okey{width:30px;height:45px;border-radius:6px;background:linear-gradient(180deg,#f6f0df,#ddd3bc);border:1px solid #cabd9a;box-shadow:0 2px 4px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.6);position:relative;overflow:hidden;}
+.otb.skin-okey::before{content:'';position:absolute;inset:5px;border-radius:4px;background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.1) 45%, rgba(0,0,0,.03) 80%);}
+.otb.skin-okey::after{content:'•';position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font-size:1rem;color:#2d2d2d;line-height:1;opacity:.9;}
+.okey-opp-area.pos-left .otb.skin-okey,.okey-opp-area.pos-right .otb.skin-okey{width:24px;height:34px;}
+.okey-opp-area.pos-top .otb.skin-okey{width:100%;aspect-ratio:3/4.5;height:auto;}
+.opindt.skin-okey .okey-tile-face,.odiscpile.skin-okey .okey-tile-face{width:100%;height:100%;}
+</style>
+<script src="js/99-card-assets.js"></script>
+
+
+<style id="okey-pro-upgrade">
+.orack.pro-rack{
+  position:relative;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255,255,255,.08), transparent 38%),
+    linear-gradient(180deg, rgba(96,58,28,.98), rgba(48,27,13,.99));
+  border:1px solid rgba(214,196,169,0.22);
+  border-radius:20px;
+  padding:14px 12px 18px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 -10px 18px rgba(0,0,0,.18),
+    0 16px 28px rgba(0,0,0,.26);
+}
+.orack.pro-rack::before{
+  content:'';
+  position:absolute;
+  left:10px; right:10px; bottom:10px; height:18px;
+  border-radius:0 0 16px 16px;
+  background:linear-gradient(180deg,#9a6034,#5b3217);
+  box-shadow:0 6px 16px rgba(0,0,0,.28), inset 0 2px 0 rgba(255,255,255,.12);
+}
+.orack.pro-rack .orack-row{
+  position:relative;
+  background:
+    linear-gradient(180deg, rgba(162,109,62,.18), rgba(44,23,10,.10));
+  border:1px solid rgba(214,196,169,0.08);
+  border-radius:14px;
+  padding:8px 8px 18px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+.orack.pro-rack .orack-row::after{
+  left:8px; right:8px; bottom:0; height:10px;
+  border-radius:0 0 10px 10px;
+  background:linear-gradient(180deg,#a46b3d,#62371a);
+  box-shadow:0 4px 10px rgba(0,0,0,.26);
+}
+.orack.pro-rack .otile.skin-okey{
+  transition:transform .18s ease, filter .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+.orack.pro-rack .otile.skin-okey .okey-tile-face{
+  filter:drop-shadow(0 8px 10px rgba(0,0,0,.28));
+}
+.orack.pro-rack .otile.skin-okey:hover{
+  transform:translateY(-10px) scale(1.03) rotate(var(--tile-rot,0deg));
+  z-index:5;
+}
+.orack.pro-rack .otile.osel.skin-okey{
+  transform:translateY(-12px) scale(1.04) rotate(var(--tile-rot,0deg));
+  z-index:6;
+}
+.orack.pro-rack .otile.group-hint.skin-okey .okey-tile-face{
+  filter:drop-shadow(0 0 12px rgba(39,174,96,.38)) drop-shadow(0 8px 10px rgba(0,0,0,.26));
+}
+.orack.pro-rack .otile.best-discard.skin-okey .okey-tile-face{
+  filter:drop-shadow(0 0 10px rgba(231,76,60,.46)) drop-shadow(0 8px 10px rgba(0,0,0,.26));
+}
+.orack.pro-rack .otile.empty{
+  background:rgba(255,255,255,.025);
+  border:1px dashed rgba(214,196,169,.18);
+}
+.orack.pro-rack .orack-row[data-row-index="0"] .otile:nth-child(odd){ --tile-rot:-1.2deg; }
+.orack.pro-rack .orack-row[data-row-index="0"] .otile:nth-child(even){ --tile-rot:1deg; }
+.orack.pro-rack .orack-row[data-row-index="1"] .otile:nth-child(odd){ --tile-rot:1deg; }
+.orack.pro-rack .orack-row[data-row-index="1"] .otile:nth-child(even){ --tile-rot:-1.2deg; }
+
+.okey-opp-area.pos-left .okey-opp-tiles,
+.okey-opp-area.pos-right .okey-opp-tiles{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+  flex-wrap:nowrap;
+  min-height:180px;
+}
+.okey-opp-area.pos-left .otb.skin-okey,
+.okey-opp-area.pos-right .otb.skin-okey{
+  width:36px;
+  height:24px;
+  border-radius:6px;
+  transform:rotate(90deg);
+  transform-origin:center;
+  margin:-1px 0;
+  background:transparent;
+  border:none;
+  box-shadow:none;
+  overflow:visible;
+}
+.okey-opp-area.pos-top .okey-opp-tiles{
+  display:grid;
+  grid-template-columns:repeat(8,minmax(0,1fr));
+  gap:3px;
+}
+.okey-opp-area.pos-top .otb.skin-okey{
+  width:100%;
+  aspect-ratio:3/4.5;
+  height:auto;
+  background:transparent;
+  border:none;
+  box-shadow:none;
+}
+.okey-opp-face{
+  width:100%;
+  height:100%;
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.24));
+}
+.okey-opp-area.pos-left .okey-opp-face,
+.okey-opp-area.pos-right .okey-opp-face{
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.22));
+}
+.okey-fly{
+  position:fixed;
+  z-index:99999;
+  pointer-events:none;
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+  filter:drop-shadow(0 12px 20px rgba(0,0,0,.30));
+  transition:
+    left .28s cubic-bezier(.22,1,.36,1),
+    top .28s cubic-bezier(.22,1,.36,1),
+    width .28s ease,
+    height .28s ease,
+    opacity .28s ease,
+    transform .28s ease;
+}
+.okey-pulse{
+  animation:okeyPulse .28s ease;
+}
+@keyframes okeyPulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.08);}
+  100%{transform:scale(1);}
+}
+@media (max-width:760px){
+  .okey-opp-area.pos-left .otb.skin-okey,
+  .okey-opp-area.pos-right .otb.skin-okey{
+    width:30px;height:20px;
+  }
+}
+</style>
+<script id="okey-pro-upgrade-script">
+(function(){
+  function rectCenter(el){
+    const r=el.getBoundingClientRect();
+    return {left:r.left + r.width/2, top:r.top + r.height/2, width:r.width, height:r.height};
+  }
+  function okeyBackImg(){
+    return (typeof OKEY_TILE_IMG!=='undefined' && OKEY_TILE_IMG.back) ? OKEY_TILE_IMG.back : '';
+  }
+  function spawnOkeyFly(img, fromEl, toEl){
+    if(!img || !fromEl || !toEl) return;
+    const a=rectCenter(fromEl), b=rectCenter(toEl);
+    const fly=document.createElement('div');
+    fly.className='okey-fly';
+    fly.style.backgroundImage=`url(${img})`;
+    fly.style.left=(a.left-a.width/2)+'px';
+    fly.style.top=(a.top-a.height/2)+'px';
+    fly.style.width=a.width+'px';
+    fly.style.height=a.height+'px';
+    document.body.appendChild(fly);
+    requestAnimationFrame(()=>{
+      fly.style.left=(b.left-b.width/2)+'px';
+      fly.style.top=(b.top-b.height/2)+'px';
+      fly.style.width=b.width+'px';
+      fly.style.height=b.height+'px';
+      fly.style.transform='rotate(6deg) scale(.96)';
+      fly.style.opacity='0.9';
+    });
+    setTimeout(()=>{
+      fly.style.opacity='0';
+      fly.style.transform='rotate(8deg) scale(.9)';
+      setTimeout(()=>fly.remove(),220);
+    },280);
+  }
+  window.okeyAnimateDraw = function(source){
+    const src = document.getElementById(source==='pile' ? 'okey-pilecnt' : 'okey-disctp')?.previousElementSibling || document.getElementById(source==='pile' ? 'okey-pilecnt' : 'okey-disctp');
+    const rack = document.querySelector('#okey-myr .orack-row[data-row-index="0"] .otile.empty, #okey-myr .orack-row[data-row-index="1"] .otile.empty') || document.getElementById('okey-myr');
+    spawnOkeyFly(okeyBackImg(), src, rack);
+    rack?.classList?.add('okey-pulse');
+    setTimeout(()=>rack?.classList?.remove('okey-pulse'),300);
+  };
+  window.okeyAnimateDiscard = function(img){
+    const sel = document.querySelector('#okey-myr .otile.osel .okey-tile-face') || document.querySelector('#okey-myr .otile.osel') || document.querySelector('#okey-myr .otile.skin-okey .okey-tile-face');
+    const discard = document.getElementById('okey-disctp');
+    spawnOkeyFly(img || okeyBackImg(), sel, discard);
+    discard?.classList?.add('okey-pulse');
+    setTimeout(()=>discard?.classList?.remove('okey-pulse'),300);
+  };
+
+  const _draw = okeyDraw;
+  okeyDraw = function(source){
+    if(OState.currentIdx===myIdx && !ODRAWN && gameActive){
+      okeyAnimateDraw(source);
+    }
+    return _draw.apply(this, arguments);
+  };
+
+  const _discard = okeyDiscard;
+  okeyDiscard = function(){
+    let img='';
+    if(typeof OSEL!=='undefined' && OSEL!==null && typeof OSLOTS!=='undefined' && OSLOTS[OSEL]){
+      const key = okeySkinKey(OSLOTS[OSEL]);
+      img = (typeof OKEY_TILE_IMG!=='undefined' && OKEY_TILE_IMG[key]) ? OKEY_TILE_IMG[key] : '';
+    }
+    if(OState.currentIdx===myIdx && ODRAWN && OSEL!==null){
+      okeyAnimateDiscard(img);
+    }
+    return _discard.apply(this, arguments);
+  };
+
+  const _render = renderOkey;
+  renderOkey = function(){
+    _render.apply(this, arguments);
+    const rack=document.getElementById('okey-myr');
+    if(rack) rack.classList.add('pro-rack');
+
+    document.querySelectorAll('#okey-opponents .okey-opp-area').forEach(area=>{
+      const isSide = area.classList.contains('pos-left') || area.classList.contains('pos-right');
+      area.querySelectorAll('.otb.skin-okey').forEach(tb=>{
+        tb.innerHTML='';
+        const face=document.createElement('div');
+        face.className='okey-opp-face';
+        face.style.backgroundImage=`url(${okeyBackImg()})`;
+        tb.appendChild(face);
+        if(isSide){
+          tb.style.display='flex';
+          tb.style.alignItems='center';
+          tb.style.justifyContent='center';
+        }
+      });
+    });
+
+    document.querySelectorAll('#okey-myr .orack-row').forEach(row=>{
+      [...row.children].forEach((tile, idx)=>{
+        if(tile.classList.contains('otile')){
+          tile.style.zIndex = String(100 + idx);
+        }
+      });
+    });
+  };
+
+  const _applyDraw = applyOkeyDraw;
+  applyOkeyDraw = function(fromIdx, source){
+    const r = _applyDraw.apply(this, arguments);
+    const target = document.getElementById(source==='pile' ? 'okey-pilecnt' : 'okey-disccnt');
+    target?.classList?.add('okey-pulse');
+    setTimeout(()=>target?.classList?.remove('okey-pulse'),300);
+    return r;
+  };
+
+  const _applyDiscard = applyOkeyDiscard;
+  applyOkeyDiscard = function(fromIdx, tileIdx){
+    const r = _applyDiscard.apply(this, arguments);
+    document.getElementById('okey-disctp')?.classList?.add('okey-pulse');
+    setTimeout(()=>document.getElementById('okey-disctp')?.classList?.remove('okey-pulse'),300);
+    return r;
+  };
+})();
+</script>
+
+</body>
+</html>
+
+<style>
+/* ===== UNO SARI OVAL / HIGHLIGHT KESİN KALDIRMA ===== */
+.ucard.play,
+.ucard.best-play{
+  border-color: transparent !important;
+  outline: none !important;
+  box-shadow: 0 12px 22px rgba(0,0,0,0.34) !important;
+  filter: none !important;
+}
+.ucard.play::after,
+.ucard.best-play::after{
+  content: '' !important;
+  background: transparent !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08) !important;
+  padding: 0 !important;
+  border-radius: inherit !important;
+  opacity: 1 !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: none !important;
+}
+.ucard.play:hover{
+  transform: translateY(-10px) scale(1.05) !important;
+}
+</style>
