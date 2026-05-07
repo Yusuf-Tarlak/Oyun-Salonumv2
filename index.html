@@ -58,7 +58,7 @@
         <div class="auth-err" id="auth-reg-err"></div>
       </div>
       <div class="auth-divider">veya</div>
-      <button class="auth-btn" onclick="authGuest()" style="border-color:var(--muted);color:var(--muted)"><span>👤 Misafir Olarak Devam Et</span></button>
+      <button class="auth-btn" onclick="authGuest()" style="border-color:var(--muted);color:var(--muted)"><span>Misafir Olarak Devam Et</span></button>
     </div>
   </div>
 </div>
@@ -74,14 +74,14 @@
   </div>
   <div class="themebar">
     <div class="themebox">
-      <label for="main-theme-select">🎨 Tema</label>
+      <label for="main-theme-select">Tema</label>
       <select id="main-theme-select" onchange="applyTheme(this.value)">
-        <option value="classic">🟢 Klasik Kahvehane</option>
-        <option value="night">🌙 Gece / Mor</option>
-        <option value="emerald">💚 Zümrüt</option>
-        <option value="royal">👑 Royal Altın</option>
-        <option value="casino">🎰 Retro Casino</option>
-        <option value="light">☀️ Açık Tema</option>
+        <option value="classic"> Klasik Kahvehane</option>
+        <option value="night"> Gece / Mor</option>
+        <option value="emerald"> Zümrüt</option>
+        <option value="royal"> Royal Altın</option>
+        <option value="casino"> Retro Casino</option>
+        <option value="light"> Açık Tema</option>
       </select>
       <div class="theme-preview" aria-hidden="true">
         <span class="theme-dot theme-dot-gold" style="background:var(--gold)"></span>
@@ -92,39 +92,39 @@
   </div>
   <div class="game-grid">
     <div class="gc" onclick="selGame('dama',this)">
-      <span class="gi">🔴</span><div class="gt">Dama</div><div class="gd">8×8 klasik</div>
+      <span class="gi"></span><div class="gt">Dama</div><div class="gd">8×8 klasik</div>
       <div class="gbadge">2 KİŞİ</div>
     </div>
     <div class="gc" onclick="selGame('chess',this)">
-      <span class="gi">♟</span><div class="gt">Satranç</div><div class="gd">Tam kurallar</div>
+      <span class="gi"></span><div class="gt">Satranç</div><div class="gd">Tam kurallar</div>
       <div class="gbadge">2 KİŞİ</div>
     </div>
     <div class="gc" onclick="selGame('tavla',this)">
-      <span class="gi">🎲</span><div class="gt">Tavla</div><div class="gd">Türk tavlası</div>
+      <span class="gi"></span><div class="gt">Tavla</div><div class="gd">Türk tavlası</div>
       <div class="gbadge">2 KİŞİ</div>
     </div>
     <div class="gc" onclick="selGame('uno',this)">
-      <span class="gi">🃏</span><div class="gt">Uno</div><div class="gd">Renkli kart oyunu</div>
+      <span class="gi"></span><div class="gt">Uno</div><div class="gd">Renkli kart oyunu</div>
       <div class="gbadge">3–6 KİŞİ</div>
     </div>
     <div class="gc" onclick="selGame('okey',this)">
-      <span class="gi">🀄</span><div class="gt">Okey</div><div class="gd">Türk okey masası</div>
+      <span class="gi"></span><div class="gt">Okey</div><div class="gd">Türk okey masası</div>
       <div class="gbadge">4 KİŞİ</div>
     </div>
     <div class="gc" onclick="selGame('amiral',this)">
-      <span class="gi">⚓</span><div class="gt">Amiral Battı</div><div class="gd">Gemi avı</div>
+      <span class="gi"></span><div class="gt">Amiral Battı</div><div class="gd">Gemi avı</div>
       <div class="gbadge">2 KİŞİ</div>
     </div>
     <div class="gc" onclick="selGame('sos',this)">
-      <span class="gi">📝</span><div class="gt">SOS</div><div class="gd">Harf oyunu</div>
+      <span class="gi"></span><div class="gt">SOS</div><div class="gd">Harf oyunu</div>
       <div class="gbadge">2 KİŞİ</div>
     </div>
     <div class="gc" onclick="selGame('sudoku',this)">
-      <span class="gi">🔢</span><div class="gt">Sudoku</div><div class="gd">Mantık bulmacası</div>
+      <span class="gi"></span><div class="gt">Sudoku</div><div class="gd">Mantık bulmacası</div>
       <div class="gbadge">TEK KİŞİ</div>
     </div>
     <div class="gc" onclick="selGame('asmaca',this)">
-      <span class="gi">🎭</span><div class="gt">Adam Asmaca</div><div class="gd">Kelime tahmin</div>
+      <span class="gi"></span><div class="gt">Adam Asmaca</div><div class="gd">Kelime tahmin</div>
       <div class="gbadge">TEK KİŞİ</div>
     </div>
   </div>
@@ -164,12 +164,12 @@
         <label>Oda Türü</label>
         <div style="display:flex;gap:8px;margin-top:4px">
           <div class="room-type-btn active" id="rtype-public" onclick="setRoomType('public')">
-            <span style="font-size:1rem">🌐</span>
+            <span style="font-size:1rem"></span>
             <div class="rt-label">Açık</div>
             <div class="rt-desc">Listede görünsün</div>
           </div>
           <div class="room-type-btn" id="rtype-private" onclick="setRoomType('private')">
-            <span style="font-size:1rem">🔒</span>
+            <span style="font-size:1rem"></span>
             <div class="rt-label">Gizli</div>
             <div class="rt-desc">Şifreli, listede yok</div>
           </div>
@@ -206,12 +206,12 @@
     <div class="theme-row">
       <label style="font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-family:'Cinzel',serif">Tema</label>
       <select id="profile-theme-select" onchange="applyTheme(this.value)">
-        <option value="classic">🟢 Klasik</option>
-        <option value="night">🌙 Gece</option>
-        <option value="emerald">💚 Zümrüt</option>
-        <option value="royal">👑 Royal</option>
-        <option value="casino">🎰 Casino</option>
-        <option value="light">☀️ Açık</option>
+        <option value="classic"> Klasik</option>
+        <option value="night"> Gece</option>
+        <option value="emerald"> Zümrüt</option>
+        <option value="royal"> Royal</option>
+        <option value="casino"> Casino</option>
+        <option value="light"> Açık</option>
       </select>
     </div>
     <div class="history-card" style="margin:12px 0 0;max-width:none;padding:10px 12px">
@@ -260,7 +260,7 @@
 
 <!-- DAMA -->
 <div id="screen-dama" class="screen">
-  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">🔴 DAMA</div><div style="width:55px"></div></div>
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle"> DAMA</div><div style="width:55px"></div></div>
   <div class="scoreboard" id="dama-scores"></div>
   <div class="turnbar" id="dama-turn">...</div>
   <div style="display:flex;justify-content:center;padding:0 12px;width:100%;max-width:440px"><div id="dama-board"></div></div>
@@ -270,7 +270,7 @@
 
 <!-- SATRANÇ -->
 <div id="screen-chess" class="screen">
-  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">♟ SATRANÇ</div><div style="width:55px"></div></div>
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle"> SATRANÇ</div><div style="width:55px"></div></div>
   <div class="scoreboard" id="chess-scores"></div>
   <div class="turnbar" id="chess-turn">...</div>
   <div style="display:flex;justify-content:center;padding:0 12px;width:100%;max-width:440px"><div id="chess-board"></div></div>
@@ -281,7 +281,7 @@
 
 <!-- TAVLA -->
 <div id="screen-tavla" class="screen">
-  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">🎲 TAVLA</div><div style="width:55px"></div></div>
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle"> TAVLA</div><div style="width:55px"></div></div>
   <div id="tavla-wrap">
     <div class="scoreboard" id="tavla-scores"></div>
     <div class="turnbar" id="tavla-turn">...</div>
@@ -289,8 +289,8 @@
     <div class="dicewrap" id="tavla-dice"></div>
     <div style="display:flex;justify-content:center;width:100%"><div id="tavla-board"></div></div>
     <div class="tavla-actions">
-      <button class="tavbtn primary" id="btn-roll" onclick="tavlaRoll()" disabled>🎲 Zar At</button>
-      <button class="tavbtn" id="btn-pass" onclick="tavlaPass()" disabled>⏭ Pas Geç</button>
+      <button class="tavbtn primary" id="btn-roll" onclick="tavlaRoll()" disabled> Zar At</button>
+      <button class="tavbtn" id="btn-pass" onclick="tavlaPass()" disabled> Pas Geç</button>
     </div>
     <div class="chatwrap"><div style="font-family:'Cinzel',serif;font-size:0.7rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:6px">SOHBET</div><div class="chatmsgs" id="tavla-chat"></div><div class="chatrow"><input type="text" id="tavla-ci" placeholder="Mesaj..." maxlength="80" onkeydown="if(event.key==='Enter')sendChat('tavla')"><button class="csend" onclick="sendChat('tavla')">Gönder</button></div></div>
     <div style="padding:4px 0 16px"><button class="btn dan" onclick="leaveGame()"><span>Çık</span></button></div>
@@ -299,7 +299,7 @@
 
 <!-- UNO -->
 <div id="screen-uno" class="screen">
-  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">🃏 UNO</div><div class="uno-dir" id="uno-dir-lbl">↻</div></div>
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle"> UNO</div><div class="uno-dir" id="uno-dir-lbl">↻</div></div>
   <div class="turnbar" id="uno-turn">...</div>
   <div id="uno-wrap">
     <div class="uno-table">
@@ -343,7 +343,7 @@
         <div class="uno-actions-right">
           <button class="smb" id="uno-show-playable" onclick="unoTogglePlayableOnly()">Oynanabilirleri Göster</button>
           <button class="smb" onclick="unoSuggestMove()">Öneri</button>
-          <button class="smb dan" id="uno-unobtn" onclick="shoutUno()" style="display:none">📢 UNO!</button>
+          <button class="smb dan" id="uno-unobtn" onclick="shoutUno()" style="display:none"> UNO!</button>
         </div>
       </div>
       <div class="uhand-wrap">
@@ -361,7 +361,7 @@
 
 <!-- OKEY -->
 <div id="screen-okey" class="screen">
-  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">🀄 OKEY</div><div style="width:55px"></div></div>
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">OKEY</div><div style="width:55px"></div></div>
   <div class="turnbar" id="okey-turn">...</div>
   <div id="okey-wrap">
     <div class="okey-table">
@@ -384,7 +384,7 @@
       </div>
       <div class="okey-actions">
         <button class="smb pri" id="okey-discbtn" onclick="okeyDiscard()" disabled>Taş At</button>
-        <button class="smb" id="okey-declbtn" onclick="okeyDeclare()" disabled>🏆 Bitir!</button>
+        <button class="smb" id="okey-declbtn" onclick="okeyDeclare()" disabled> Bitir!</button>
         <button class="smb" onclick="okeySort()">Sırala</button>
         <button class="smb" onclick="okeySuggestMove()">Öneri</button>
         <div class="okey-mode-inline">
@@ -392,7 +392,7 @@
             <option value="sirali">Sıralı El</option>
             <option value="seri">Seri El</option>
           </select>
-          <button class="smb" id="okey-openbtn" onclick="okeyOpenHand()" disabled>👐 El Aç</button>
+          <button class="smb" id="okey-openbtn" onclick="okeyOpenHand()" disabled> El Aç</button>
         </div>
       </div>
       <div class="okey-open-state" id="okey-open-state"></div>
@@ -408,7 +408,7 @@
 
 <!-- AMİRAL BATTI -->
 <div id="screen-amiral" class="screen">
-  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">⚓ AMİRAL BATTI</div><div style="width:55px"></div></div>
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle"> AMİRAL BATTI</div><div style="width:55px"></div></div>
   <div class="scoreboard" id="amiral-scores"></div>
   <div class="turnbar" id="amiral-turn">...</div>
   <div id="amiral-wrap">
@@ -440,7 +440,7 @@
 
 <!-- SOS -->
 <div id="screen-sos" class="screen">
-  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">📝 SOS</div><div style="width:55px"></div></div>
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle"> SOS</div><div style="width:55px"></div></div>
   <div class="scoreboard" id="sos-scores"></div>
   <div class="turnbar" id="sos-turn">...</div>
   <div id="sos-wrap">
@@ -460,7 +460,7 @@
 
 <!-- SUDOKU -->
 <div id="screen-sudoku" class="screen">
-  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">🔢 SUDOKU</div><div style="width:55px"></div></div>
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle"> SUDOKU</div><div style="width:55px"></div></div>
   <div id="sudoku-wrap">
     <div style="display:flex;gap:10px;justify-content:center;align-items:center;padding:4px 10px;flex-wrap:wrap;">
       <div style="font-family:'Cinzel',serif;font-size:0.65rem;color:var(--muted);letter-spacing:0.12em;">Zorluk:</div>
@@ -485,11 +485,11 @@
       <button class="snum-btn" onclick="sudokuInput(7)">7</button>
       <button class="snum-btn" onclick="sudokuInput(8)">8</button>
       <button class="snum-btn" onclick="sudokuInput(9)">9</button>
-      <button class="snum-btn del" onclick="sudokuInput(0)" style="grid-column:span 3">⌫ Sil</button>
+      <button class="snum-btn del" onclick="sudokuInput(0)" style="grid-column:span 3"> Sil</button>
     </div>
     <div id="sudoku-status" style="text-align:center;font-family:'Cinzel',serif;font-size:0.72rem;color:var(--muted);padding:4px 0;min-height:22px;"></div>
     <div style="display:flex;gap:8px;justify-content:center;padding:4px 0;">
-      <button class="tavbtn" onclick="sudokuHint()">💡 İpucu</button>
+      <button class="tavbtn" onclick="sudokuHint()"> İpucu</button>
       <button class="tavbtn" onclick="sudokuCheck()">✓ Kontrol</button>
     </div>
   </div>
@@ -498,24 +498,24 @@
 
 <!-- ADAM ASMACA -->
 <div id="screen-asmaca" class="screen">
-  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle">🎭 ADAM ASMACA</div><div style="width:55px"></div></div>
+  <div class="ghdr"><button class="backbtn" onclick="leaveGame()">← Menü</button><div class="ghtitle"> ADAM ASMACA</div><div style="width:55px"></div></div>
   <div id="asmaca-wrap">
     <div id="asmaca-solo-opts" style="display:flex;gap:8px;justify-content:center;align-items:center;padding:4px 10px;flex-wrap:wrap;">
       <div style="font-family:'Cinzel',serif;font-size:0.7rem;color:var(--gold2);letter-spacing:0.1em;">Kategori seç, kelimeyi ipucuyla tahmin et</div>
       <select id="asmaca-category" onchange="asmacaChangeCategory()" style="width:auto;min-width:180px;font-size:0.78rem;padding:7px 10px;">
-        <option value="karisik">🎲 Karışık</option>
-        <option value="meyveSebze">🍎 Meyve / Sebze</option>
-        <option value="hayvanlar">🐾 Hayvanlar</option>
-        <option value="meslekler">🧑‍💼 Meslekler</option>
-        <option value="sporOyun">⚽ Spor / Oyun</option>
-        <option value="teknoloji">💻 Teknoloji</option>
-        <option value="evEsyalari">🏠 Ev Eşyaları</option>
-        <option value="yemekIcecek">🍽️ Yemek / İçecek</option>
-        <option value="ulkelerSehirler">🌍 Ülke / Şehir</option>
-        <option value="dogaYerler">🌿 Doğa / Yerler</option>
-        <option value="ulasimNesne">🚗 Ulaşım / Nesne</option>
+        <option value="karisik"> Karışık</option>
+        <option value="meyveSebze"> Meyve / Sebze</option>
+        <option value="hayvanlar"> Hayvanlar</option>
+        <option value="meslekler"> Meslekler</option>
+        <option value="sporOyun"> Spor / Oyun</option>
+        <option value="teknoloji"> Teknoloji</option>
+        <option value="evEsyalari"> Ev Eşyaları</option>
+        <option value="yemekIcecek"> Yemek / İçecek</option>
+        <option value="ulkelerSehirler"> Ülke / Şehir</option>
+        <option value="dogaYerler"> Doğa / Yerler</option>
+        <option value="ulasimNesne"> Ulaşım / Nesne</option>
       </select>
-      <button class="tavbtn" onclick="asmacaShowHint()" id="asmaca-hint-btn">💡 İpucu Al (-1 hak)</button>
+      <button class="tavbtn" onclick="asmacaShowHint()" id="asmaca-hint-btn"> İpucu Al (-1 hak)</button>
       <button class="tavbtn primary" onclick="asmacaNew()">↻ Yeni Kelime</button>
     </div>
     <div id="asmaca-pool-info" style="text-align:center;font-family:'Cinzel',serif;font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;padding:2px 0;"></div>
@@ -563,7 +563,7 @@
     <div style="font-family:'Cinzel',serif;font-size:0.65rem;color:var(--muted);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;">Tema Seç</div>
     <div id="float-theme-list" style="display:flex;flex-direction:column;gap:4px;"></div>
   </div>
-  <button onclick="toggleThemePanel()" style="width:42px;height:42px;border-radius:50%;background:var(--s);border:1px solid var(--gold);color:var(--gold);font-size:1.1rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:all 0.2s;display:flex;align-items:center;justify-content:center;" title="Tema değiştir">🎨</button>
+  <button onclick="toggleThemePanel()" style="width:42px;height:42px;border-radius:50%;background:var(--s);border:1px solid var(--gold);color:var(--gold);font-size:1.1rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:all 0.2s;display:flex;align-items:center;justify-content:center;" title="Tema değiştir"></button>
 </div>
 
 
